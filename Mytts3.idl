@@ -1,0 +1,29 @@
+﻿// Mytts3.idl: Mytts3.exe 的类型库源
+
+// 此文件将由 MIDL 编译器处理以产生
+// 类型库(Mytts3.tlb)。
+
+[ uuid(931f46d4-9598-4727-bba3-b82fbc16118c), version(1.0) ]
+library Mytts3
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	//  CMytts3Doc 的主调度接口
+
+	[ uuid(0c24bd81-9cdd-4400-9ec1-387069640989) ]
+	dispinterface IMytts3
+	{
+		properties:
+
+		methods:
+	};
+
+	//  CMytts3Doc 的类信息
+
+	[ uuid(ebc507bb-b1c0-40f2-a3fa-1ef070239179) ]
+	coclass Mytts3
+	{
+		[default] dispinterface IMytts3;
+	};
+};
