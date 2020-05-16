@@ -3,7 +3,10 @@
 //
 
 #pragma once
-
+#include <locale.h>
+#include <fstream>
+#include <iostream>
+#include <string>
 class CMytts3DlgAutoProxy;
 
 
@@ -48,4 +51,8 @@ public:
 	CEdit editname;
 	afx_msg void OnBnClickedButton2();
 	CListBox namelist;
+
+	// for test.
+	void ReadStringCharToUnicode(CString& str);
+	CString getUtf8File(CString filename);
 };

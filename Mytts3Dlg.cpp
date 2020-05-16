@@ -12,6 +12,7 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+using namespace std;
 
 
 // CMytts3Dlg 对话框
@@ -118,8 +119,8 @@ void CMytts3Dlg::OnClose()
 
 void CMytts3Dlg::OnOK()
 {
-	if (CanExit())
-		CDialog::OnOK();
+	//if (CanExit())
+	//	CDialog::OnOK();
 }
 
 void CMytts3Dlg::OnCancel()
@@ -158,9 +159,46 @@ void CMytts3Dlg::OnEnChangeEdit1()
 void CMytts3Dlg::OnBnClickedButton3()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	CFileDialog filewindow(TRUE, _T("文本文件(*.txt)|*.txt||"), NULL,  OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,NULL, 0, 0, 0);
+	
+	
+	if (IDOK != filewindow.DoModal())
+		return;
+	// 打开成功！
+	MessageBox(_T("you open the file window."), _T("You click this."), MB_OK);
+	CString openfilename = filewindow.GetPathName();
 
+	// 帮助用来添加utf-8内容。
+	//setlocale(LC_CTYPE, "chs");
+	CString tan = getUtf8File(openfilename);
+	//namelist.AddString(tan);
+	MessageBox(tan, _T("添加成功2！"), MB_OK);
+	UpdateWindow();
 
+	while (TRUE)
+	{
+		int index = tan.Find(_T("\r\n"));
+		if (index == -1)
+		{
+			namelist.AddString(tan);
+			break;
+		}
+		namelist.AddString(tan.Left(index));
+		tan = tan.Right(tan.GetLength() - index - 1);
+	}
+	//这里是失败案例。
+	/*
+	CStdioFile txtfile;
+	txtfile.Open(openfilename, CFile::modeRead);
+	CString name_to_add;
+	while (txtfile.ReadString(name_to_add)) {
+		//ReadStringCharToUnicode(name_to_add);
 
+		namelist.AddString(name_to_add);
+		MessageBox(name_to_add, _T("添加成功2！"), MB_OK);
+		UpdateWindow();
+	}
+	*/
 }
 
 
@@ -170,12 +208,82 @@ void CMytts3Dlg::OnBnClickedButton2()
 	CEdit* name;
 	name = (CEdit *)GetDlgItem(IDC_EDIT1);
 	CString str;
-	name->GetWindowTextW(str);
+	name->GetWindowText(str);
 	if (str.GetLength() != 0) {
 		namelist.AddString(str);
 		MessageBox(str, _T("添加成功！"), MB_OK);
 	}
-	name->SetWindowTextW(L"");
+	name->SetWindowText(L"");
 	UpdateWindow();
 
+}
+
+
+
+void CMytts3Dlg::ReadStringCharToUnicode(CString& str)
+{
+	char* szBuf = new char[str.GetLength() + 1];//注意“+1”，char字符要求结束符，而CString没有
+	memset(szBuf, '\0', str.GetLength());
+
+	int i;
+	for (i = 0; i < str.GetLength(); i++)
+	{
+		szBuf[i] = (char)str.GetAt(i);
+	}
+	szBuf[i] = '\0';//结束符。否则会在末尾产生乱码。
+
+	int nLen;
+	WCHAR* ptch;
+	CString strOut;
+	if (szBuf == NULL)
+	{
+		return;
+	}
+	nLen = MultiByteToWideChar(CP_ACP, 0, szBuf, -1, NULL, 0);//获得需要的宽字符字节数
+	ptch = new WCHAR[nLen];
+	memset(ptch, '\0', nLen);
+	MultiByteToWideChar(CP_ACP, 0, szBuf, -1, ptch, nLen);
+	str.Format(_T("%s"), ptch);
+
+	if (NULL != ptch)
+		delete[] ptch;
+	ptch = NULL;
+
+	if (NULL != szBuf)
+		delete[]szBuf;
+	szBuf = NULL;
+	return;
+}
+
+
+//此处参考 https://blog.csdn.net/beyondlpf/article/details/7161976
+CString CMytts3Dlg::getUtf8File(CString filename)
+{
+	CFile file;
+	if (! file.Open(filename, CFile::modeRead | CFile::typeBinary))
+		return NULL;
+
+	// 判断有无utf-8标志头。如果有的话就先读掉，没有的话得重新回到起点。
+	BYTE head[3];
+	file.Read(head, 3);
+	if (!(head[0] == 0xEF && head[1] == 0xBB && head[2] == 0xBF))
+		file.SeekToBegin();
+
+	//先将文本内容按照字节一个个读进来，然后后面再处理。
+	ULONGLONG FileSize = file.GetLength();
+	char* pContent = (char*)calloc(FileSize + 1,1);
+	file.Read(pContent, FileSize);
+
+	//从多字节转换成宽字节，之前的UTF-8是三个字节，这里变成两个字节。
+	int n = MultiByteToWideChar(CP_UTF8, 0, pContent, FileSize + 1, NULL, 0);
+	wchar_t* pWideChar = (wchar_t*)calloc(n + 1, sizeof(wchar_t));
+	MultiByteToWideChar(CP_UTF8, 0, pContent, FileSize + 1, pWideChar, n);
+	CString strFile = CString(pWideChar);
+
+	//释放空间
+	file.Close();
+	free(pContent);
+	free(pWideChar);
+
+	return strFile;
 }
