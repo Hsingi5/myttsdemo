@@ -1,4 +1,13 @@
 # mytts
+
+
+
+[TOC]
+
+
+
+
+
 the project of Multi_media course
 
 some references:
@@ -155,8 +164,13 @@ CString CMytts3Dlg::getUtf8File(CString filename)
 
 
 
-1. 
 
-2. 设计部分，包括代码整体结构，关键数据类型，关键函数。这门课的还得画个流程图。
 
-   这部分先不急管它，明两天我把代码大部分写完之后做起来就很简单。
+
+
+
+
+## NEW DAY
+
+ https://blog.csdn.net/Alexander_Frank/article/details/52115894 【MFC ListBox Control用法】
+

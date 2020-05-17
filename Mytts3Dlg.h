@@ -7,6 +7,10 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <cstdlib>
+#include <sapi.h>
+#include "resource.h"
+
 class CMytts3DlgAutoProxy;
 
 
@@ -55,4 +59,10 @@ public:
 	// for test.
 	void ReadStringCharToUnicode(CString& str);
 	CString getUtf8File(CString filename);
+	afx_msg void OnBnClickedOk();
+	afx_msg void OnLbnSelchangeList1();
+	afx_msg void OnEnChangeEdit2();
+	CEdit show_name;
+	ISpVoice* pVoice;
+
 };

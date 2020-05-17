@@ -25,6 +25,14 @@ CMytts3Dlg::CMytts3Dlg(CWnd* pParent /*=nullptr*/)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	m_pAutoProxy = nullptr;
+
+	//初始化TTS
+	if (FAILED(::CoInitialize(NULL)))
+		MessageBox(_T("语音初始化失败，请重新启动或检查配置。"), _T("WARNING FROM wxy"), 0);
+	HRESULT hr = CoCreateInstance(CLSID_SpVoice, NULL, CLSCTX_ALL, IID_ISpVoice, (void**)&pVoice);
+	if (!SUCCEEDED(hr))
+		return;
+
 }
 
 CMytts3Dlg::~CMytts3Dlg()
@@ -41,6 +49,7 @@ void CMytts3Dlg::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_EDIT1, editname);
 	DDX_Control(pDX, IDC_LIST1, namelist);
+	DDX_Control(pDX, IDC_EDIT2, show_name);
 }
 
 BEGIN_MESSAGE_MAP(CMytts3Dlg, CDialog)
@@ -50,6 +59,9 @@ BEGIN_MESSAGE_MAP(CMytts3Dlg, CDialog)
 	ON_EN_CHANGE(IDC_EDIT1, &CMytts3Dlg::OnEnChangeEdit1)
 	ON_BN_CLICKED(IDC_BUTTON3, &CMytts3Dlg::OnBnClickedButton3)
 	ON_BN_CLICKED(IDC_BUTTON2, &CMytts3Dlg::OnBnClickedButton2)
+	ON_BN_CLICKED(IDOK, &CMytts3Dlg::OnBnClickedOk)
+	ON_LBN_SELCHANGE(IDC_LIST1, &CMytts3Dlg::OnLbnSelchangeList1)
+	ON_EN_CHANGE(IDC_EDIT2, &CMytts3Dlg::OnEnChangeEdit2)
 END_MESSAGE_MAP()
 
 
@@ -113,6 +125,8 @@ HCURSOR CMytts3Dlg::OnQueryDragIcon()
 
 void CMytts3Dlg::OnClose()
 {
+	::CoUninitialize();
+	pVoice = NULL;
 	if (CanExit())
 		CDialog::OnClose();
 }
@@ -125,6 +139,8 @@ void CMytts3Dlg::OnOK()
 
 void CMytts3Dlg::OnCancel()
 {
+	::CoUninitialize();
+	pVoice = NULL;
 	if (CanExit())
 		CDialog::OnCancel();
 }
@@ -134,6 +150,9 @@ BOOL CMytts3Dlg::CanExit()
 	// 如果代理对象仍保留在那里，则自动化
 	//  控制器仍会保持此应用程序。
 	//  使对话框保留在那里，但将其 UI 隐藏起来。
+	
+	::CoUninitialize();
+	pVoice = NULL;
 	if (m_pAutoProxy != nullptr)
 	{
 		ShowWindow(SW_HIDE);
@@ -175,6 +194,7 @@ void CMytts3Dlg::OnBnClickedButton3()
 	MessageBox(tan, _T("添加成功2！"), MB_OK);
 	UpdateWindow();
 
+	//按换行符将CString每段分开。
 	while (TRUE)
 	{
 		int index = tan.Find(_T("\r\n"));
@@ -286,4 +306,59 @@ CString CMytts3Dlg::getUtf8File(CString filename)
 	free(pWideChar);
 
 	return strFile;
+}
+
+void CMytts3Dlg::OnBnClickedOk()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	//CDialog::OnOK();
+
+	/*这个函数里，我们每点击一次，就要将一个Cstring挪到
+	我们的中间框里，把它朗读出来。并把它加入右边框。*/
+	
+	// 首先获取列表总数。
+	long total = namelist.GetCount(); 
+	UINT i;
+
+	// 随机抽取一个CString
+	srand(time(NULL));
+	i = rand() % total;
+	CString get_chouqu;
+	namelist.GetText(i, get_chouqu);
+
+	namelist.DeleteString(i);
+	//MessageBox(get_chouqu, NULL, 0);
+	
+	UpdateWindow();
+	
+	//更新中间框内容
+	UpdateData(TRUE);
+	show_name.Clear();
+	show_name.SetSel(0, -1);
+	show_name.ReplaceSel(get_chouqu);
+	UpdateData(FALSE);
+
+	//朗读名字
+	pVoice->Speak(get_chouqu,0, NULL);
+
+
+}
+
+
+void CMytts3Dlg::OnLbnSelchangeList1()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	namelist.DeleteString(namelist.GetCurSel());
+	UpdateWindow();
+}
+
+
+void CMytts3Dlg::OnEnChangeEdit2()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 CDialog::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
 }
