@@ -572,35 +572,55 @@ void CMytts3Dlg::OnBnClickedButton4()
 	// TODO: 在此添加控件通知处理程序代码
 	CFileDialog filewindow(FALSE, _T("文本文件(*.txt)|*.txt||"), L"test.txt", OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, 0, 0, 0);
 
-
 	if (IDOK != filewindow.DoModal())
 		return;
 	// 打开成功！
 	CString filename = filewindow.GetPathName();
-
-	// 随机抽取一个CString
-	long total = picklist.GetCount();
-	srand(time(NULL));
-	UINT i = rand() % total;
-	CString get_chouqu;
-	picklist.GetText(i, get_chouqu);
-	picklist.DeleteString(i);
-	
-	UpdateWindow();
-	char* input = CreateUTF8TextInitWithString(get_chouqu);
-
 	CFile file;
-	if (! file.Open(filename, CFile::modeCreate | CFile::modeReadWrite | CFile::typeBinary))
-		return ;
+	if (!file.Open(filename, CFile::modeCreate | CFile::modeReadWrite | CFile::typeBinary))
+		return;
 
+	char addit[2];
+	addit[0] = '\r';
+	addit[1] = '\n';
 
-	//先将文本内容按照字节一个个读进来，然后后面再处理。
-	//ULONGLONG FileSize = file.GetLength();
-	//char* pContent = (char*)calloc(FileSize + 1, 1);
-	file.Write(input, WideCharToMultiByte(CP_UTF8, 0, get_chouqu, -1, NULL, 0, NULL, NULL));
+	int flag = 0;
+	while (picklist.GetCount() > 0) {
+		CString get_chouqu;
+		picklist.GetText(0, get_chouqu);
+		picklist.DeleteString(0);
 
+		UpdateWindow();
+		char* input;
+		input = CreateUTF8TextInitWithString(get_chouqu);
+
+		UINT len = WideCharToMultiByte(CP_UTF8, 0, get_chouqu, -1, NULL, 0, NULL, NULL);
+		if ( flag == 0) {
+			if (input[0] == '\n')
+			{
+				input++;
+				len--;
+			}
+		}
+		else if (flag == 1) {
+			if (input[0] == '\n')
+			{
+				file.Write("\r", 1);
+			}
+			else
+				file.Write("\r\n", 2);
+		}
+		
+
+		//先将文本内容按照字节一个个读进来，然后后面再处理。
+		//ULONGLONG FileSize = file.GetLength();
+		//char* pContent = (char*)calloc(FileSize + 1, 1);
+		file.Write(input, len-1);
+		
+		flag = 1;
+	}
 	file.Close();
-	free(input);
+
 }
 
 
