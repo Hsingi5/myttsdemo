@@ -70,4 +70,5 @@ public:
 	// 这是抽中名单对应的变量
 	CListBox picklist;
 	afx_msg void OnLbnSelchangeList4();
+	afx_msg void OnBnClickedButton5();
 };

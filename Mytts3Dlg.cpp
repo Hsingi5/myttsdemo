@@ -65,6 +65,7 @@ BEGIN_MESSAGE_MAP(CMytts3Dlg, CDialog)
 	ON_EN_CHANGE(IDC_EDIT2, &CMytts3Dlg::OnEnChangeEdit2)
 	ON_BN_CLICKED(IDC_BUTTON1, &CMytts3Dlg::OnBnClickedButton1)
 	ON_LBN_SELCHANGE(IDC_LIST4, &CMytts3Dlg::OnLbnSelchangeList4)
+	ON_BN_CLICKED(IDC_BUTTON5, &CMytts3Dlg::OnBnClickedButton5)
 END_MESSAGE_MAP()
 
 
@@ -358,7 +359,8 @@ void CMytts3Dlg::OnBnClickedOk()
 	UpdateData(FALSE);
 
 	//朗读名字
-	pVoice->Speak(get_chouqu,0, NULL);
+	pVoice->Speak(_T("test"), SPF_ASYNC, NULL);
+	pVoice->Speak(get_chouqu, SPF_ASYNC, NULL);
 
 	picklist.AddString(get_chouqu);
 	UpdateWindow();
@@ -396,4 +398,11 @@ void CMytts3Dlg::OnLbnSelchangeList4()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	
+}
+
+
+void CMytts3Dlg::OnBnClickedButton5()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	pVoice->Resume();
 }
