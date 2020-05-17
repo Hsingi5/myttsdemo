@@ -97,6 +97,10 @@ public:
 	void Do_pick();
 	afx_msg void OnCbnSelchangeCombo1();
 	afx_msg void OnNMCustomdrawSlider2(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnNMCustomdrawSlider1(NMHDR* pNMHDR, LRESULT* pResult);
+	CSliderCtrl slider_volume;
+	// 朗读速度对应的变量
+	CSliderCtrl slider_speed;
 };
 
 

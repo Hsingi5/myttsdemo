@@ -56,6 +56,8 @@ void CMytts3Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT2, show_name);
 	DDX_Control(pDX, IDC_LIST4, picklist);
 	DDX_Control(pDX, IDC_EDIT3, picktimes);
+	DDX_Control(pDX, IDC_SLIDER1, slider_volume);
+	DDX_Control(pDX, IDC_SLIDER2, slider_speed);
 }
 
 BEGIN_MESSAGE_MAP(CMytts3Dlg, CDialog)
@@ -75,6 +77,7 @@ BEGIN_MESSAGE_MAP(CMytts3Dlg, CDialog)
 	ON_EN_CHANGE(IDC_EDIT3, &CMytts3Dlg::OnEnChangeEdit3)
 	ON_CBN_SELCHANGE(IDC_COMBO1, &CMytts3Dlg::OnCbnSelchangeCombo1)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER2, &CMytts3Dlg::OnNMCustomdrawSlider2)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER1, &CMytts3Dlg::OnNMCustomdrawSlider1)
 END_MESSAGE_MAP()
 
 
@@ -94,6 +97,8 @@ BOOL CMytts3Dlg::OnInitDialog()
 	m_editFont.CreatePointFont(240, L"宋体");
 	show_name.SetFont(&m_editFont);
 
+	slider_volume.SetRange(0, 100);
+	slider_speed.SetRange(0, 10);
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -333,6 +338,7 @@ CString CMytts3Dlg::getUtf8File(CString filename)
 void CMytts3Dlg::OnBnClickedOk()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	
 	HWND hWnd = ::GetFocus();
 	int iID = ::GetDlgCtrlID(hWnd);
 	if (iID == IDC_EDIT1)
@@ -341,6 +347,10 @@ void CMytts3Dlg::OnBnClickedOk()
 		return;
 	}
 	char num[20];
+
+	CWnd* this_wind = GetDlgItem(IDOK);
+	this_wind->EnableWindow(false);
+
 	UINT x = GetDlgItemInt(IDC_EDIT3, 0, 0);
 	if (x == 0)
 		x = 1;
@@ -352,9 +362,9 @@ void CMytts3Dlg::OnBnClickedOk()
 	ps = (struct pick_struct*)malloc(sizeof(struct pick_struct));
 	ps->dlg = this;
 	ps->times = x;
-	m_hThread = CreateThread(0, 1, ThreadProc, ps, 0, 0);
+	m_hThread = CreateThread(0, 0, ThreadProc, ps, 0, 0);
 	CloseHandle(m_hThread);
-
+	
 }
 
 
@@ -387,6 +397,16 @@ void CMytts3Dlg::OnBnClickedButton1()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	
+	//这个函数是用来将框全部清空的。
+
+	show_name.SetWindowText(L"");
+	picktimes.SetWindowText(L"");
+	editname.SetWindowText(L"");
+	namelist.ResetContent();
+	picklist.ResetContent();
+	slider_volume.SetPos(0);
+	slider_speed.SetPos(0);
+	UpdateWindow();
 }
 
 
@@ -452,8 +472,8 @@ void CMytts3Dlg::Do_pick() {
 	UpdateData(FALSE);
 
 	//朗读名字
-	pVoice->Speak(get_chouqu, SPF_ASYNC, NULL);
-
+	pVoice->Speak(get_chouqu,SPF_ASYNC, NULL);
+	pVoice->WaitUntilDone(INFINITY);
 	picklist.AddString(get_chouqu);
 	UpdateWindow();
 }
@@ -465,19 +485,26 @@ void CMytts3Dlg::Do_pick() {
 DWORD WINAPI ThreadProc(LPVOID lpParam) {
 	struct pick_struct* s;
 	s = (pick_struct*)lpParam;
-	for (unsigned int i = 0; i < s->times; i++)
+	
+	int adj = s->dlg->slider_speed.GetPos();
+	for (unsigned int i = 0; i < (s->times); i++)
 	{
 		::PostMessage(s->dlg->m_hWnd, WM_YOU_CAN_PICK, 0, 0);
-		Sleep(1000);
+		Sleep(2000-adj*130);
 		while (1) {
 			if (s->dlg->pause == 1) {
-				Sleep(2000);
+				Sleep(20);
 			}
 			else {
 				break;
 			}
 		}
 	}
+
+	CWnd* pick = s->dlg->GetDlgItem(IDOK);
+	CWnd* reset = s->dlg->GetDlgItem(IDOK);
+	pick->EnableWindow(true);
+	reset->EnableWindow(true);
 	return 1;
 }
 
@@ -492,4 +519,14 @@ void CMytts3Dlg::OnNMCustomdrawSlider2(NMHDR* pNMHDR, LRESULT* pResult)
 	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
 	// TODO: 在此添加控件通知处理程序代码
 	*pResult = 0;
+	pVoice->SetRate(slider_speed.GetPos()-5);
+}
+
+
+void CMytts3Dlg::OnNMCustomdrawSlider1(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+	*pResult = 0;
+	pVoice->SetVolume(slider_volume.GetPos());
 }
