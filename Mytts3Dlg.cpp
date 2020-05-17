@@ -51,6 +51,7 @@ void CMytts3Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LIST1, namelist);
 	DDX_Control(pDX, IDC_EDIT2, show_name);
 	DDX_Control(pDX, IDC_LIST4, picklist);
+	DDX_Control(pDX, IDC_EDIT3, picktimes);
 }
 
 BEGIN_MESSAGE_MAP(CMytts3Dlg, CDialog)
@@ -66,6 +67,7 @@ BEGIN_MESSAGE_MAP(CMytts3Dlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON1, &CMytts3Dlg::OnBnClickedButton1)
 	ON_LBN_SELCHANGE(IDC_LIST4, &CMytts3Dlg::OnLbnSelchangeList4)
 	ON_BN_CLICKED(IDC_BUTTON5, &CMytts3Dlg::OnBnClickedButton5)
+	ON_EN_CHANGE(IDC_EDIT3, &CMytts3Dlg::OnEnChangeEdit3)
 END_MESSAGE_MAP()
 
 
@@ -405,4 +407,15 @@ void CMytts3Dlg::OnBnClickedButton5()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	pVoice->Resume();
+}
+
+
+void CMytts3Dlg::OnEnChangeEdit3()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 CDialog::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+	// TODO:  在此添加控件通知处理程序代码
+
 }

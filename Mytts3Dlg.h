@@ -71,4 +71,6 @@ public:
 	CListBox picklist;
 	afx_msg void OnLbnSelchangeList4();
 	afx_msg void OnBnClickedButton5();
+	afx_msg void OnEnChangeEdit3();
+	CEdit picktimes;
 };
