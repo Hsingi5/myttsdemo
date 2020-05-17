@@ -75,9 +75,10 @@ BEGIN_MESSAGE_MAP(CMytts3Dlg, CDialog)
 	ON_MESSAGE(WM_YOU_CAN_PICK, &CMytts3Dlg::Youcanpick)
 	ON_BN_CLICKED(IDC_BUTTON5, &CMytts3Dlg::OnBnClickedButton5)
 	ON_EN_CHANGE(IDC_EDIT3, &CMytts3Dlg::OnEnChangeEdit3)
-	ON_CBN_SELCHANGE(IDC_COMBO1, &CMytts3Dlg::OnCbnSelchangeCombo1)
+	//ON_CBN_SELCHANGE(IDC_COMBO1, &CMytts3Dlg::OnCbnSelchangeCombo1)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER2, &CMytts3Dlg::OnNMCustomdrawSlider2)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER1, &CMytts3Dlg::OnNMCustomdrawSlider1)
+	ON_BN_CLICKED(IDC_BUTTON4, &CMytts3Dlg::OnBnClickedButton4)
 END_MESSAGE_MAP()
 
 
@@ -348,9 +349,13 @@ void CMytts3Dlg::OnBnClickedOk()
 	}
 	char num[20];
 
+	//关闭本按钮
 	CWnd* this_wind = GetDlgItem(IDOK);
 	this_wind->EnableWindow(false);
-
+	//关闭reset按钮
+	CWnd* reset = GetDlgItem(IDC_BUTTON1);
+	reset->EnableWindow(false);
+	
 	UINT x = GetDlgItemInt(IDC_EDIT3, 0, 0);
 	if (x == 0)
 		x = 1;
@@ -529,4 +534,104 @@ void CMytts3Dlg::OnNMCustomdrawSlider1(NMHDR* pNMHDR, LRESULT* pResult)
 	// TODO: 在此添加控件通知处理程序代码
 	*pResult = 0;
 	pVoice->SetVolume(slider_volume.GetPos());
+}
+
+char* CreateUTF8TextInitWithString(CString strValue) {
+	char* buffer = NULL;
+	int  length;
+
+#ifdef _UNICODE  
+	length = WideCharToMultiByte(CP_UTF8, 0, strValue, -1, NULL, 0, NULL, NULL);
+#else  
+	return NULL;
+#endif  
+	if (length <= 0)
+	{
+		return NULL;
+	}
+
+	buffer = new char[length];
+	if (buffer == NULL)
+	{
+		return NULL;
+	}
+
+	ZeroMemory(buffer, length);
+
+#ifdef _UNICODE  
+	WideCharToMultiByte(CP_UTF8, 0, strValue, -1, buffer, length, NULL, NULL);
+#else  
+	strcpy_s(buffer, length, strValue);
+#endif  
+
+	return buffer;
+}
+
+void CMytts3Dlg::OnBnClickedButton4()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	CFileDialog filewindow(FALSE, _T("文本文件(*.txt)|*.txt||"), L"test.txt", OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, 0, 0, 0);
+
+
+	if (IDOK != filewindow.DoModal())
+		return;
+	// 打开成功！
+	CString filename = filewindow.GetPathName();
+
+	// 随机抽取一个CString
+	long total = picklist.GetCount();
+	srand(time(NULL));
+	UINT i = rand() % total;
+	CString get_chouqu;
+	picklist.GetText(i, get_chouqu);
+	picklist.DeleteString(i);
+	
+	UpdateWindow();
+	char* input = CreateUTF8TextInitWithString(get_chouqu);
+
+	CFile file;
+	if (! file.Open(filename, CFile::modeCreate | CFile::modeReadWrite | CFile::typeBinary))
+		return ;
+
+
+	//先将文本内容按照字节一个个读进来，然后后面再处理。
+	//ULONGLONG FileSize = file.GetLength();
+	//char* pContent = (char*)calloc(FileSize + 1, 1);
+	file.Write(input, WideCharToMultiByte(CP_UTF8, 0, get_chouqu, -1, NULL, 0, NULL, NULL));
+
+	file.Close();
+	free(input);
+}
+
+
+char* CMytts3Dlg::CreateUTF8TextInitWithString(CString strValue)
+{
+	char* buffer = NULL;
+	int  length;
+
+#ifdef _UNICODE  
+	length = WideCharToMultiByte(CP_UTF8, 0, strValue, -1, NULL, 0, NULL, NULL);
+#else  
+	return NULL;
+#endif  
+	if (length <= 0)
+	{
+		return NULL;
+	}
+
+	buffer = new char[length];
+	if (buffer == NULL)
+	{
+		return NULL;
+	}
+
+	ZeroMemory(buffer, length);
+
+#ifdef _UNICODE  
+	WideCharToMultiByte(CP_UTF8, 0, strValue, -1, buffer, length, NULL, NULL);
+#else  
+	strcpy_s(buffer, length, strValue);
+#endif  
+
+	return buffer;
 }

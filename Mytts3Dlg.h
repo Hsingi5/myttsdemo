@@ -66,7 +66,7 @@ public:
 	afx_msg void OnLbnSelchangeList1();
 	afx_msg void OnEnChangeEdit2();
 	
-	//消息响应函数,未完成。
+	//消息响应函数,已完成。
 	afx_msg  LRESULT  Youcanpick(WPARAM wParam, LPARAM lParam);
 
 	CEdit show_name;
@@ -98,9 +98,15 @@ public:
 	afx_msg void OnCbnSelchangeCombo1();
 	afx_msg void OnNMCustomdrawSlider2(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnNMCustomdrawSlider1(NMHDR* pNMHDR, LRESULT* pResult);
+	
+	
 	CSliderCtrl slider_volume;
 	// 朗读速度对应的变量
 	CSliderCtrl slider_speed;
+
+
+	char* CreateUTF8TextInitWithString(CString strValue);
+	afx_msg void OnBnClickedButton4();
 };
 
 
