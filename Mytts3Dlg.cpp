@@ -25,6 +25,10 @@ CMytts3Dlg::CMytts3Dlg(CWnd* pParent /*=nullptr*/)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	m_pAutoProxy = nullptr;
+	
+	//初始状态的语言不是暂停的，所以是false
+	pause = false;
+
 
 	//初始化TTS
 	if (FAILED(::CoInitialize(NULL)))
@@ -67,7 +71,7 @@ BEGIN_MESSAGE_MAP(CMytts3Dlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON1, &CMytts3Dlg::OnBnClickedButton1)
 	ON_LBN_SELCHANGE(IDC_LIST4, &CMytts3Dlg::OnLbnSelchangeList4)
 	ON_MESSAGE(WM_YOU_CAN_PICK, &CMytts3Dlg::Youcanpick)
-	//ON_BN_CLICKED(IDC_BUTTON5, &CMytts3Dlg::OnBnClickedButton5)
+	ON_BN_CLICKED(IDC_BUTTON5, &CMytts3Dlg::OnBnClickedButton5)
 	ON_EN_CHANGE(IDC_EDIT3, &CMytts3Dlg::OnEnChangeEdit3)
 END_MESSAGE_MAP()
 
@@ -85,7 +89,7 @@ BOOL CMytts3Dlg::OnInitDialog()
 
 	// TODO: 在此添加额外的初始化代码
 
-	m_editFont.CreatePointFont(300, L"宋体");
+	m_editFont.CreatePointFont(240, L"宋体");
 	show_name.SetFont(&m_editFont);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
@@ -346,7 +350,7 @@ void CMytts3Dlg::OnBnClickedOk()
 	ps = (struct pick_struct*)malloc(sizeof(struct pick_struct));
 	ps->dlg = this;
 	ps->times = x;
-	m_hThread = CreateThread(0, 0, ThreadProc, ps, 0, 0);
+	m_hThread = CreateThread(0, 1, ThreadProc, ps, 0, 0);
 	CloseHandle(m_hThread);
 
 }
@@ -394,7 +398,7 @@ void CMytts3Dlg::OnLbnSelchangeList4()
 void CMytts3Dlg::OnBnClickedButton5()
 {
 	//添加一个bool变量，用来控制是暂停还是回复。
-	if(pause == true)
+	if(pause == false)
 		pVoice->Pause();
 	else
 		pVoice->Resume();
@@ -463,6 +467,14 @@ DWORD WINAPI ThreadProc(LPVOID lpParam) {
 	{
 		::PostMessage(s->dlg->m_hWnd, WM_YOU_CAN_PICK, 0, 0);
 		Sleep(1000);
+		while (1) {
+			if (s->dlg->pause == 1) {
+				Sleep(2000);
+			}
+			else {
+				break;
+			}
+		}
 	}
 	return 1;
 }
