@@ -66,7 +66,8 @@ BEGIN_MESSAGE_MAP(CMytts3Dlg, CDialog)
 	ON_EN_CHANGE(IDC_EDIT2, &CMytts3Dlg::OnEnChangeEdit2)
 	ON_BN_CLICKED(IDC_BUTTON1, &CMytts3Dlg::OnBnClickedButton1)
 	ON_LBN_SELCHANGE(IDC_LIST4, &CMytts3Dlg::OnLbnSelchangeList4)
-	ON_BN_CLICKED(IDC_BUTTON5, &CMytts3Dlg::OnBnClickedButton5)
+	ON_MESSAGE(WM_YOU_CAN_PICK, &CMytts3Dlg::Youcanpick)
+	//ON_BN_CLICKED(IDC_BUTTON5, &CMytts3Dlg::OnBnClickedButton5)
 	ON_EN_CHANGE(IDC_EDIT3, &CMytts3Dlg::OnEnChangeEdit3)
 END_MESSAGE_MAP()
 
@@ -83,6 +84,9 @@ BOOL CMytts3Dlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
+
+	m_editFont.CreatePointFont(300, L"宋体");
+	show_name.SetFont(&m_editFont);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -330,7 +334,21 @@ void CMytts3Dlg::OnBnClickedOk()
 		CMytts3Dlg::OnOK();
 		return;
 	}
-	Do_pick();
+	char num[20];
+	UINT x = GetDlgItemInt(IDC_EDIT3, 0, 0);
+	if (x == 0)
+		x = 1;
+
+	UINT total = namelist.GetCount();
+	if (total < x)
+		x = total;
+
+	ps = (struct pick_struct*)malloc(sizeof(struct pick_struct));
+	ps->dlg = this;
+	ps->times = x;
+	m_hThread = CreateThread(0, 0, ThreadProc, ps, 0, 0);
+	CloseHandle(m_hThread);
+
 }
 
 
@@ -352,11 +370,17 @@ void CMytts3Dlg::OnEnChangeEdit2()
 	// TODO:  在此添加控件通知处理程序代码
 }
 
+LRESULT CMytts3Dlg::Youcanpick(WPARAM wParam, LPARAM lParam)
+{
+	Do_pick();
+	return LRESULT();
+}
+
 
 void CMytts3Dlg::OnBnClickedButton1()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	pVoice->Pause();
+	
 }
 
 
@@ -369,8 +393,13 @@ void CMytts3Dlg::OnLbnSelchangeList4()
 
 void CMytts3Dlg::OnBnClickedButton5()
 {
-	// TODO: 在此添加控件通知处理程序代码
-	pVoice->Resume();
+	//添加一个bool变量，用来控制是暂停还是回复。
+	if(pause == true)
+		pVoice->Pause();
+	else
+		pVoice->Resume();
+	
+	pause ^= true; // 0和1互换。
 }
 
 
@@ -417,10 +446,23 @@ void CMytts3Dlg::Do_pick() {
 	UpdateData(FALSE);
 
 	//朗读名字
-	pVoice->Speak(_T("test"), SPF_ASYNC, NULL);
 	pVoice->Speak(get_chouqu, SPF_ASYNC, NULL);
 
 	picklist.AddString(get_chouqu);
 	UpdateWindow();
+}
 
+
+
+
+//这里的s是用来提取我们的参数的，一个是执行次数，一个是窗体对象指针。
+DWORD WINAPI ThreadProc(LPVOID lpParam) {
+	struct pick_struct* s;
+	s = (pick_struct*)lpParam;
+	for (unsigned int i = 0; i < s->times; i++)
+	{
+		::PostMessage(s->dlg->m_hWnd, WM_YOU_CAN_PICK, 0, 0);
+		Sleep(1000);
+	}
+	return 1;
 }

@@ -11,7 +11,10 @@
 #include <sapi.h>
 #include "resource.h"
 
+#define WM_YOU_CAN_PICK (WM_USER + 1)
+
 class CMytts3DlgAutoProxy;
+
 
 
 // CMytts3Dlg 对话框
@@ -62,8 +65,19 @@ public:
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnLbnSelchangeList1();
 	afx_msg void OnEnChangeEdit2();
+	
+	//消息响应函数,未完成。
+	afx_msg  LRESULT  Youcanpick(WPARAM wParam, LPARAM lParam);
+
 	CEdit show_name;
 	ISpVoice* pVoice;
+
+
+	//这个变量用于 暂停/继续 键
+	bool pause;
+
+	//用于中间框的显示
+	CFont m_editFont;
 
 	afx_msg void OnBnClickedButton1();
 
@@ -74,6 +88,21 @@ public:
 	afx_msg void OnEnChangeEdit3();
 	CEdit picktimes;
 	
+	//bool 简陋线程锁,这里是关于多进程的问题的
+	struct pick_struct* ps;
+	HANDLE m_hThread;//线程句柄 
+
+
 	//将抽取对应的函数写到这里来。
 	void Do_pick();
 };
+
+
+
+//这里是为了多线程的准备
+struct pick_struct {
+	UINT times;
+	CMytts3Dlg* dlg;
+};
+
+DWORD WINAPI ThreadProc(LPVOID lpParam);

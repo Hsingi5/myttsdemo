@@ -181,3 +181,9 @@ CString CMytts3Dlg::getUtf8File(CString filename)
  https://www.cnblogs.com/menlsh/p/4222408.html 【下图】
 
 ![1589697819459](C:\Users\fitar\AppData\Roaming\Typora\typora-user-images\1589697819459.png)
+
+
+
+
+
+https://blog.csdn.net/limtyty/article/details/84640479【这个太妙了，利用线程更新界面】
