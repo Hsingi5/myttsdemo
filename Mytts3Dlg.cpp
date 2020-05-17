@@ -100,6 +100,10 @@ BOOL CMytts3Dlg::OnInitDialog()
 
 	slider_volume.SetRange(0, 100);
 	slider_speed.SetRange(0, 10);
+
+	CWnd* stop_resume = GetDlgItem(IDC_BUTTON5);
+	stop_resume->EnableWindow(false);
+
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -492,6 +496,13 @@ DWORD WINAPI ThreadProc(LPVOID lpParam) {
 	s = (pick_struct*)lpParam;
 	
 	int adj = s->dlg->slider_speed.GetPos();
+
+	CWnd* pick = s->dlg->GetDlgItem(IDOK);
+	CWnd* reset = s->dlg->GetDlgItem(IDC_BUTTON1);
+	CWnd* stop_resume = s->dlg->GetDlgItem(IDC_BUTTON5);
+
+	stop_resume->EnableWindow(true);
+
 	for (unsigned int i = 0; i < (s->times); i++)
 	{
 		::PostMessage(s->dlg->m_hWnd, WM_YOU_CAN_PICK, 0, 0);
@@ -506,10 +517,11 @@ DWORD WINAPI ThreadProc(LPVOID lpParam) {
 		}
 	}
 
-	CWnd* pick = s->dlg->GetDlgItem(IDOK);
-	CWnd* reset = s->dlg->GetDlgItem(IDOK);
+	
 	pick->EnableWindow(true);
 	reset->EnableWindow(true);
+	stop_resume->EnableWindow(false);
+	
 	return 1;
 }
 
@@ -570,6 +582,13 @@ char* CreateUTF8TextInitWithString(CString strValue) {
 void CMytts3Dlg::OnBnClickedButton4()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	int len = picklist.GetCount();
+	if (len == 0) {
+		MessageBox(_T("现在表单是空的，导出不了！"), _T("You used a button."), 0);
+		return;
+	}
+
+
 	CFileDialog filewindow(FALSE, _T("文本文件(*.txt)|*.txt||"), L"test.txt", OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, 0, 0, 0);
 
 	if (IDOK != filewindow.DoModal())
@@ -580,9 +599,6 @@ void CMytts3Dlg::OnBnClickedButton4()
 	if (!file.Open(filename, CFile::modeCreate | CFile::modeReadWrite | CFile::typeBinary))
 		return;
 
-	char addit[2];
-	addit[0] = '\r';
-	addit[1] = '\n';
 
 	int flag = 0;
 	while (picklist.GetCount() > 0) {
