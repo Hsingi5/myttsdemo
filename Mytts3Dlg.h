@@ -95,6 +95,8 @@ public:
 
 	//将抽取对应的函数写到这里来。
 	void Do_pick();
+	afx_msg void OnCbnSelchangeCombo1();
+	afx_msg void OnNMCustomdrawSlider2(NMHDR* pNMHDR, LRESULT* pResult);
 };
 
 

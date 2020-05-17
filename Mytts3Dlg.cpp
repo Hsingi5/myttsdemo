@@ -73,6 +73,8 @@ BEGIN_MESSAGE_MAP(CMytts3Dlg, CDialog)
 	ON_MESSAGE(WM_YOU_CAN_PICK, &CMytts3Dlg::Youcanpick)
 	ON_BN_CLICKED(IDC_BUTTON5, &CMytts3Dlg::OnBnClickedButton5)
 	ON_EN_CHANGE(IDC_EDIT3, &CMytts3Dlg::OnEnChangeEdit3)
+	ON_CBN_SELCHANGE(IDC_COMBO1, &CMytts3Dlg::OnCbnSelchangeCombo1)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER2, &CMytts3Dlg::OnNMCustomdrawSlider2)
 END_MESSAGE_MAP()
 
 
@@ -477,4 +479,17 @@ DWORD WINAPI ThreadProc(LPVOID lpParam) {
 		}
 	}
 	return 1;
+}
+
+void CMytts3Dlg::OnCbnSelchangeCombo1()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+
+void CMytts3Dlg::OnNMCustomdrawSlider2(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+	*pResult = 0;
 }
