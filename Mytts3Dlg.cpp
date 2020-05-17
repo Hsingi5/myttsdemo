@@ -50,6 +50,7 @@ void CMytts3Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT1, editname);
 	DDX_Control(pDX, IDC_LIST1, namelist);
 	DDX_Control(pDX, IDC_EDIT2, show_name);
+	DDX_Control(pDX, IDC_LIST4, picklist);
 }
 
 BEGIN_MESSAGE_MAP(CMytts3Dlg, CDialog)
@@ -62,6 +63,8 @@ BEGIN_MESSAGE_MAP(CMytts3Dlg, CDialog)
 	ON_BN_CLICKED(IDOK, &CMytts3Dlg::OnBnClickedOk)
 	ON_LBN_SELCHANGE(IDC_LIST1, &CMytts3Dlg::OnLbnSelchangeList1)
 	ON_EN_CHANGE(IDC_EDIT2, &CMytts3Dlg::OnEnChangeEdit2)
+	ON_BN_CLICKED(IDC_BUTTON1, &CMytts3Dlg::OnBnClickedButton1)
+	ON_LBN_SELCHANGE(IDC_LIST4, &CMytts3Dlg::OnLbnSelchangeList4)
 END_MESSAGE_MAP()
 
 
@@ -135,6 +138,12 @@ void CMytts3Dlg::OnOK()
 {
 	//if (CanExit())
 	//	CDialog::OnOK();
+	HWND hWnd = ::GetFocus(); 
+	int iID = ::GetDlgCtrlID(hWnd);
+	if (iID == IDC_EDIT1)
+	{
+		OnBnClickedButton2();
+	}
 }
 
 void CMytts3Dlg::OnCancel()
@@ -311,13 +320,23 @@ CString CMytts3Dlg::getUtf8File(CString filename)
 void CMytts3Dlg::OnBnClickedOk()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	//CDialog::OnOK();
-
+	HWND hWnd = ::GetFocus();
+	int iID = ::GetDlgCtrlID(hWnd);
+	if (iID == IDC_EDIT1)
+	{
+		CMytts3Dlg::OnOK();
+		return;
+	}
 	/*这个函数里，我们每点击一次，就要将一个Cstring挪到
 	我们的中间框里，把它朗读出来。并把它加入右边框。*/
 	
 	// 首先获取列表总数。
 	long total = namelist.GetCount(); 
+	if (total == 0) {
+		MessageBox(_T("名单里没有能抽的了！"), NULL, 0);
+		return;
+	}
+		
 	UINT i;
 
 	// 随机抽取一个CString
@@ -341,6 +360,8 @@ void CMytts3Dlg::OnBnClickedOk()
 	//朗读名字
 	pVoice->Speak(get_chouqu,0, NULL);
 
+	picklist.AddString(get_chouqu);
+	UpdateWindow();
 
 }
 
@@ -361,4 +382,18 @@ void CMytts3Dlg::OnEnChangeEdit2()
 	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
 
 	// TODO:  在此添加控件通知处理程序代码
+}
+
+
+void CMytts3Dlg::OnBnClickedButton1()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	pVoice->Pause();
+}
+
+
+void CMytts3Dlg::OnLbnSelchangeList4()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	
 }

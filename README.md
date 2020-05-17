@@ -174,3 +174,4 @@ CString CMytts3Dlg::getUtf8File(CString filename)
 
  https://blog.csdn.net/Alexander_Frank/article/details/52115894 【MFC ListBox Control用法】
 
+ http://blog.sina.com.cn/s/blog_8a727a580101hlrn.html 【 MFC实现特定编辑框上对回车键响应 】

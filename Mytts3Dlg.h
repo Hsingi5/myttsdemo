@@ -65,4 +65,9 @@ public:
 	CEdit show_name;
 	ISpVoice* pVoice;
 
+	afx_msg void OnBnClickedButton1();
+
+	// 这是抽中名单对应的变量
+	CListBox picklist;
+	afx_msg void OnLbnSelchangeList4();
 };
