@@ -330,43 +330,7 @@ void CMytts3Dlg::OnBnClickedOk()
 		CMytts3Dlg::OnOK();
 		return;
 	}
-	/*这个函数里，我们每点击一次，就要将一个Cstring挪到
-	我们的中间框里，把它朗读出来。并把它加入右边框。*/
-	
-	// 首先获取列表总数。
-	long total = namelist.GetCount(); 
-	if (total == 0) {
-		MessageBox(_T("名单里没有能抽的了！"), NULL, 0);
-		return;
-	}
-		
-	UINT i;
-
-	// 随机抽取一个CString
-	srand(time(NULL));
-	i = rand() % total;
-	CString get_chouqu;
-	namelist.GetText(i, get_chouqu);
-
-	namelist.DeleteString(i);
-	//MessageBox(get_chouqu, NULL, 0);
-	
-	UpdateWindow();
-	
-	//更新中间框内容
-	UpdateData(TRUE);
-	show_name.Clear();
-	show_name.SetSel(0, -1);
-	show_name.ReplaceSel(get_chouqu);
-	UpdateData(FALSE);
-
-	//朗读名字
-	pVoice->Speak(_T("test"), SPF_ASYNC, NULL);
-	pVoice->Speak(get_chouqu, SPF_ASYNC, NULL);
-
-	picklist.AddString(get_chouqu);
-	UpdateWindow();
-
+	Do_pick();
 }
 
 
@@ -417,5 +381,46 @@ void CMytts3Dlg::OnEnChangeEdit3()
 	// 函数并调用 CRichEditCtrl().SetEventMask()，
 	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
 	// TODO:  在此添加控件通知处理程序代码
+
+}
+
+
+void CMytts3Dlg::Do_pick() {
+	/*这个函数里，我们每点击一次，就要将一个Cstring挪到
+	我们的中间框里，把它朗读出来。并把它加入右边框。*/
+
+	// 首先获取列表总数。
+	long total = namelist.GetCount();
+	if (total == 0) {
+		MessageBox(_T("名单里没有能抽的了！"), NULL, 0);
+		return;
+	}
+
+	UINT i;
+
+	// 随机抽取一个CString
+	srand(time(NULL));
+	i = rand() % total;
+	CString get_chouqu;
+	namelist.GetText(i, get_chouqu);
+
+	namelist.DeleteString(i);
+	//MessageBox(get_chouqu, NULL, 0);
+
+	UpdateWindow();
+
+	//更新中间框内容
+	UpdateData(TRUE);
+	show_name.Clear();
+	show_name.SetSel(0, -1);
+	show_name.ReplaceSel(get_chouqu);
+	UpdateData(FALSE);
+
+	//朗读名字
+	pVoice->Speak(_T("test"), SPF_ASYNC, NULL);
+	pVoice->Speak(get_chouqu, SPF_ASYNC, NULL);
+
+	picklist.AddString(get_chouqu);
+	UpdateWindow();
 
 }

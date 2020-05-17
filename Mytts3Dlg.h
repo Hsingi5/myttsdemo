@@ -73,4 +73,7 @@ public:
 	afx_msg void OnBnClickedButton5();
 	afx_msg void OnEnChangeEdit3();
 	CEdit picktimes;
+	
+	//将抽取对应的函数写到这里来。
+	void Do_pick();
 };
