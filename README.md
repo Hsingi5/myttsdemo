@@ -2,7 +2,6 @@
 
 
 
-[TOC]
 
 
 
@@ -10,7 +9,10 @@
 
 the project of Multi_media course
 
-some references:
+Here are some relevant references :
+
+
+
 
  [MFC让你的应用发声](http://www.vephp.com/jiaocheng/9142.html)
 
